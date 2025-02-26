@@ -3,7 +3,20 @@
   <component name="deploymentTargetDropDown">
     <value>
       <entry key="AddPatientActivity">
-        <State />
+        <State>
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\HP\.android\avd\Pixel_6_API_27_Prashant_P1.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2025-02-25T16:31:23.243557600Z" />
+        </State>
       </entry>
       <entry key="MainActivity">
         <State />
@@ -21,7 +34,7 @@
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2025-02-18T05:37:55.962798800Z" />
+          <timeTargetWasSelectedWithDropDown value="2025-02-25T16:38:08.091375500Z" />
         </State>
       </entry>
     </value>

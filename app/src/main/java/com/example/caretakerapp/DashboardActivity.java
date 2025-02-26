@@ -16,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class DashboardActivity extends AppCompatActivity {
 
     private Button logoutButton, addPatient;
-    private ImageButton addMedicineReminderButton, sendMessageButton;
+    private ImageButton addMedicineReminderButton, sendMessageButton, viewPatient;
     private FirebaseAuth mAuth;
 
     @Override
@@ -32,6 +32,7 @@ public class DashboardActivity extends AppCompatActivity {
         addPatient = findViewById(R.id.button4);
         addMedicineReminderButton = findViewById(R.id.imageButton2);
         sendMessageButton = findViewById(R.id.imageButton);
+        viewPatient = findViewById(R.id.imageButton3);
 
         // Logout button click listener
         logoutButton.setOnClickListener(v -> logoutUser());
@@ -40,6 +41,8 @@ public class DashboardActivity extends AppCompatActivity {
         addMedicineReminderButton.setOnClickListener(v -> navigateToAddMedicineReminder());
         addPatient.setOnClickListener((v -> addPatient()));
         sendMessageButton.setOnClickListener((v -> moveToSendMessageActivity()));
+        viewPatient.setOnClickListener((v -> viewPatientActivity()));
+
 
     }
 
@@ -52,6 +55,9 @@ public class DashboardActivity extends AppCompatActivity {
         // Sign out from Firebase
         mAuth.signOut();
 
+        // Stop the emergency service to remove old data
+        stopService(new Intent(this, EmergencyAlertService.class));
+
         // Redirect to MainActivity (Login screen)
         Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
         startActivity(intent);
@@ -62,6 +68,13 @@ public class DashboardActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    private void viewPatientActivity(){
+        Intent intent = new Intent(DashboardActivity.this, ViewPatientActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
 
 
     // Navigate to AddMedicineReminderActivity

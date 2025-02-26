@@ -3,6 +3,7 @@ package com.example.caretakerapp;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -47,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
 //
         String cachedEmail = sharedPreferences.getString("user_email", null);
         String patientEmail = sharedPreferences.getString("patient_email", null);
+
+        Intent serviceIntent = new Intent(this, EmergencyAlertService.class);
+        startService(serviceIntent);
+
 
         // Auto-login if email is cached
         if (cachedEmail != null) {
@@ -103,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
                             // Cache email
                             sharedPreferences.edit().putString("user_email", email).apply();
                             checkCaretakerPatients(email);
+                            restartEmergencyService();
                         } else {
                             Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
@@ -110,6 +116,21 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void restartEmergencyService() {
+        String caretakerEmail = sharedPreferences.getString("user_email", null);
+        if (caretakerEmail == null) {
+            return; // No user logged in, don't restart the service
+        }
+
+        Intent serviceIntent = new Intent(this, EmergencyAlertService.class);
+        serviceIntent.putExtra("caretaker_email", caretakerEmail); // Send latest email
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+    }
     // Check if caretaker has patients, redirect accordingly
     private void checkCaretakerPatients(String email) {
         String caretakerKey = email.replace(".", "_");

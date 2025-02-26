@@ -5,6 +5,14 @@
     <uses-permission android:name="android.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+
+
+
 
 
 
@@ -41,8 +49,31 @@
             android:exported="true"/>
 
         <activity
+            android:name=".ViewPatientActivity"
+            android:exported="true"/>
+
+        <activity
             android:name=".SendMessageActivity"
             android:exported="true"/>
+
+
+        <activity
+            android:name=".EmergencyActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:taskAffinity=""
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <!-- Foreground Service for Emergency Alert -->
+        <service
+            android:name=".EmergencyAlertService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection"/>
+
+
+
+
 
 
 
