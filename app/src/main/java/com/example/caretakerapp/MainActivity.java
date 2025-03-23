@@ -52,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, EmergencyAlertService.class);
         startService(serviceIntent);
 
+        Intent messageServiceIntent = new Intent(this, MessageNotificationService.class);
+        startService(messageServiceIntent);
+
 
         // Auto-login if email is cached
         if (cachedEmail != null) {
@@ -109,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
                             sharedPreferences.edit().putString("user_email", email).apply();
                             checkCaretakerPatients(email);
                             restartEmergencyService();
+                            restartMessageService();
+
                         } else {
                             Toast.makeText(MainActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
@@ -125,12 +130,41 @@ public class MainActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, EmergencyAlertService.class);
         serviceIntent.putExtra("caretaker_email", caretakerEmail); // Send latest email
 
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
+
+
         } else {
             startService(serviceIntent);
+
         }
     }
+
+    public void restartMessageService(){
+
+        String caretakerEmail = sharedPreferences.getString("user_email", null);
+        if (caretakerEmail == null) {
+            return; // No user logged in, don't restart the service
+        }
+
+        Intent messageServiceIntent = new Intent(this, MessageNotificationService.class);
+        messageServiceIntent.putExtra("caretaker_email", caretakerEmail); // Send latest email
+
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            startForegroundService(messageServiceIntent);
+
+        } else {
+
+            startService(messageServiceIntent);
+        }
+
+    }
+
     // Check if caretaker has patients, redirect accordingly
     private void checkCaretakerPatients(String email) {
         String caretakerKey = email.replace(".", "_");

@@ -57,6 +57,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Stop the emergency service to remove old data
         stopService(new Intent(this, EmergencyAlertService.class));
+        stopService(new Intent(this, MessageNotificationService.class));
 
         // Redirect to MainActivity (Login screen)
         Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
