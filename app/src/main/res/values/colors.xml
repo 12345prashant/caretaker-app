@@ -1,5 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Primary Colors -->
+    <color name="primary">#7C9EBF</color>
+    <color name="primary_dark">#5B7A99</color>
+    <color name="primary_light">#A6C1D9</color>
+
+    <!-- Accent Colors -->
+    <color name="accent">#9DC88D</color>
+    <color name="accent_light">#BFE0AE</color>
+
+    <!-- Neutral Colors -->
+    <color name="background">#F5F7FA</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#2C3E50</color>
+    <color name="text_secondary">#5D6D7E</color>
+
+    <!-- Status Colors -->
+    <color name="success">#7CB342</color>
+    <color name="error">#E57373</color>
+    <color name="warning">#FFB74D</color>
+
+    <!-- Card Colors -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_shadow">#1A000000</color>
+
+    <!-- Legacy Colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="gray">#808080</color>
+    <color name="primary_color">#6200EE</color>
+    <color name="divider_color">#E0E0E0</color>
+
+    <color name="gradient_start">#6A11CB</color>
+    <color name="gradient_end">#2575FC</color>
+    <color name="surface_variant">#E7E0EC</color>
+    <color name="on_surface">#1C1B1F</color>
+    <color name="on_surface_variant">#49454F</color>
+    <color name="card_stroke">#79747E</color>
+    <color name="outline">#79747E</color>
+    <color name="grey_500">#9E9E9E</color>
+
+    <color name="lightBackground">#F5F5F5</color>
+    <color name="primaryColor">#6200EE</color>
+    <color name="primaryDark">#3700B3</color>
+    <color name="primaryLight">#BB86FC</color>
+    <color name="primaryText">#212121</color>
+    <color name="secondaryText">#757575</color>
+    <color name="cardBackground">#FFFFFF</color>
+
+    <color name="primary_dark_color">#303F9F</color>
+    <color name="accent_color">#FF4081</color>
+    <color name="secondary_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+    <color name="light_gray_background">#F5F5F5</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#757575</color>
+
+    <color name="primary_light_color">#C5CAE9</color>
+    <!-- Message Colors -->
+    <color name="sent_message_color">#DCF8C6</color>
+    <color name="sent_message_stroke">#81C784</color>
+    <color name="sent_message_text">#000000</color>
+    <color name="received_message_color">#FFFFFF</color>
+    <color name="received_message_stroke">#E0E0E0</color>
+    <color name="received_message_text">#000000</color>
+    <color name="message_time_color">#757575</color>
+    <color name="message_status_sent">#4CAF50</color>
+    <color name="message_status_read">#2196F3</color>
+
+    <color name="textDark">#212121</color>
+    <color name="errorRed">#FF5252</color>
+
+    <color name="message_status_delivered">#4CAF50</color>
 </resources>

@@ -5,18 +5,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    private Button logoutButton, addPatient;
-    private ImageButton addMedicineReminderButton, sendMessageButton, viewPatient;
+    private MaterialButton logoutButton;
+    private CardView addPatientCard, addMedicineCard, sendMessageCard, viewPatientCard;
     private FirebaseAuth mAuth;
 
     @Override
@@ -28,22 +29,48 @@ public class DashboardActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         // Bind UI elements
-        logoutButton = findViewById(R.id.button2);
-        addPatient = findViewById(R.id.button4);
-        addMedicineReminderButton = findViewById(R.id.imageButton2);
-        sendMessageButton = findViewById(R.id.imageButton);
-        viewPatient = findViewById(R.id.imageButton3);
+        logoutButton = findViewById(R.id.buttonLogout);
+        addPatientCard = findViewById(R.id.cardAddPatient);
+        addMedicineCard = findViewById(R.id.cardAddMedicine);
+        sendMessageCard = findViewById(R.id.cardSendMessage);
+        viewPatientCard = findViewById(R.id.cardViewPatient);
 
-        // Logout button click listener
-        logoutButton.setOnClickListener(v -> logoutUser());
+        // Load animations
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        Animation bounce = AnimationUtils.loadAnimation(this, R.anim.bounce);
 
-        // Add Medicine Reminder button click listener
-        addMedicineReminderButton.setOnClickListener(v -> navigateToAddMedicineReminder());
-        addPatient.setOnClickListener((v -> addPatient()));
-        sendMessageButton.setOnClickListener((v -> moveToSendMessageActivity()));
-        viewPatient.setOnClickListener((v -> viewPatientActivity()));
+        // Apply animations to cards
+        addPatientCard.startAnimation(fadeIn);
+        addMedicineCard.startAnimation(fadeIn);
+        sendMessageCard.startAnimation(fadeIn);
+        viewPatientCard.startAnimation(fadeIn);
+        logoutButton.startAnimation(fadeIn);
 
+        // Set click listeners with animations
+        addPatientCard.setOnClickListener(v -> {
+            v.startAnimation(bounce);
+            v.postDelayed(this::addPatient, 100);
+        });
 
+        addMedicineCard.setOnClickListener(v -> {
+            v.startAnimation(bounce);
+            v.postDelayed(this::navigateToAddMedicineReminder, 100);
+        });
+
+        sendMessageCard.setOnClickListener(v -> {
+            v.startAnimation(bounce);
+            v.postDelayed(this::moveToSendMessageActivity, 100);
+        });
+
+        viewPatientCard.setOnClickListener(v -> {
+            v.startAnimation(bounce);
+            v.postDelayed(this::viewPatientActivity, 100);
+        });
+
+        logoutButton.setOnClickListener(v -> {
+            v.startAnimation(bounce);
+            v.postDelayed(this::logoutUser, 100);
+        });
     }
 
     // Function to handle user logout
@@ -62,37 +89,31 @@ public class DashboardActivity extends AppCompatActivity {
         // Redirect to MainActivity (Login screen)
         Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         finish();
     }
-    private void  moveToSendMessageActivity(){
+
+    private void moveToSendMessageActivity() {
         Intent intent = new Intent(DashboardActivity.this, SendMessageActivity.class);
         startActivity(intent);
-        finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
-    private void viewPatientActivity(){
+    private void viewPatientActivity() {
         Intent intent = new Intent(DashboardActivity.this, ViewPatientActivity.class);
         startActivity(intent);
-        finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
-
-
-    // Navigate to AddMedicineReminderActivity
     private void navigateToAddMedicineReminder() {
         Intent intent = new Intent(DashboardActivity.this, AddMedicineReminderActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 
-    // Function to check if the caretaker has any existing reminders
-    private void checkMedicineReminders() {
-        // Code to fetch reminders from Firebase and update the UI accordingly
-    }
-
-    public void addPatient(){
+    public void addPatient() {
         Intent intent = new Intent(DashboardActivity.this, AddPatientActivity.class);
         startActivity(intent);
-        finish();
+        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
-
 }

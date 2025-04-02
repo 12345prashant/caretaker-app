@@ -43,7 +43,7 @@ public class AddPatientActivity extends AppCompatActivity {
         caretakerEmailText = findViewById(R.id.caretakerEmailText);
         patientEmailEditText = findViewById(R.id.patientEmailEditText);
         addPatientButton = findViewById(R.id.addPatientButton);
-        logoutButton = findViewById(R.id.button3);
+        logoutButton = findViewById(R.id.logoutButton);
 
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);

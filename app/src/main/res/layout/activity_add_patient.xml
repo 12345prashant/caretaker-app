@@ -5,50 +5,96 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="20dp"
     tools:context=".AddPatientActivity">
 
+    <!-- Header Text -->
     <TextView
-        android:id="@+id/caretakerEmailText"
-        android:layout_width="wrap_content"
+        android:id="@+id/headerText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Caretaker: "
-        android:textSize="18sp"
+        android:text="Add New Patient"
+        android:textColor="@color/text_primary"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="30dp"
-        android:layout_marginStart="20dp"/>
-
-    <EditText
-        android:id="@+id/patientEmailEditText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter Patient Email"
-        android:inputType="textEmailAddress"
-        app:layout_constraintTop_toBottomOf="@id/caretakerEmailText"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"
-        android:layout_marginHorizontal="20dp"
-        android:padding="10dp"/>
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"/>
 
-    <Button
+    <!-- Caretaker Info -->
+    <TextView
+        android:id="@+id/caretakerEmailText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Caretaker Email: user@example.com"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/headerText"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Patient Email Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/emailInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Patient Email"
+        app:layout_constraintTop_toBottomOf="@id/caretakerEmailText"
+        android:layout_marginTop="20dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/patientEmailEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:importantForAutofill="no"
+            android:maxLines="1"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Add Patient Button -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/addPatientButton"
-        android:layout_width="wrap_content"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Add Patient"
-        app:layout_constraintTop_toBottomOf="@id/patientEmailEditText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"/>
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:backgroundTint="@color/primary_color"
+        app:cornerRadius="8dp"
+        app:icon="@drawable/ic_add_user"
+        app:iconTint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/emailInputLayout"
+        android:layout_marginTop="24dp"
+        android:paddingVertical="12dp"/>
 
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider_color"
+        app:layout_constraintTop_toBottomOf="@id/addPatientButton"
+        android:layout_marginVertical="24dp"/>
+
+    <!-- Logout Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/logoutButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Logout"
+        android:textColor="@color/primary_color"
+        app:strokeColor="@color/primary_color"
+        app:strokeWidth="1dp"
+        app:cornerRadius="8dp"
+        app:layout_constraintTop_toBottomOf="@id/addPatientButton"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addPatientButton"
-        app:layout_constraintVertical_bias="0.291" />
+        android:layout_marginTop="16dp"
+        android:paddingVertical="12dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

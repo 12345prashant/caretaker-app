@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="card_size">160dp</dimen>
+    <dimen name="icon_size">72dp</dimen>
+    <dimen name="text_medium">16sp</dimen>
+    <dimen name="default_padding">16dp</dimen>
+    <dimen name="card_elevation">4dp</dimen>
+    <dimen name="card_corner_radius">12dp</dimen>
+</resources>
