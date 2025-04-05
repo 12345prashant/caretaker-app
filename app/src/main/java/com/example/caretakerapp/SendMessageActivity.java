@@ -238,7 +238,7 @@ public class SendMessageActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         String caretakerEmail = sharedPreferences.getString("user_email", "");
         String patientEmail = sharedPreferences.getString("patient_email", "");
-
+        Log.d("Login", patientEmail);
         // Create chat room ID
         chatRoomId = generateChatRoomId(caretakerEmail, patientEmail);
         messagesDatabase = FirebaseDatabase.getInstance().getReference("messages").child(chatRoomId);

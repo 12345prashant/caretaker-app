@@ -1,8 +1,11 @@
 package com.example.caretakerapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,8 +29,23 @@ public class EmergencyActivity extends AppCompatActivity {
         findViewById(R.id.dismissButton).setOnClickListener(v -> {
             stopEmergencyAlert();
 
-            navigateToDashboard();
+            // Retrieve patient email from SharedPreferences
+            SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+            String patientEmail = sharedPreferences.getString("patient_email", "");
+            Log.d("Login", patientEmail);
+            patientEmail = patientEmail.replace(".", "_");
+
+            if (!patientEmail.isEmpty()) {
+                // Delete the entry from Firebase
+                DatabaseReference emergencyRef = FirebaseDatabase.getInstance().getReference("emergency_alerts").child(patientEmail);
+                emergencyRef.removeValue();
+            }
+
+//            navigateToDashboard();
+//            super.onDestroy();
+            finishAndRemoveTask();
         });
+
     }
 
     private void stopEmergencyAlert() {
@@ -38,11 +56,16 @@ public class EmergencyActivity extends AppCompatActivity {
         }
     }
 
-
     private void navigateToDashboard() {
         Intent intent = new Intent(this, DashboardActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        finish();
+        finish(); // This will finish the current activity
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopEmergencyAlert(); // Ensure media player is released if activity is destroyed
     }
 }

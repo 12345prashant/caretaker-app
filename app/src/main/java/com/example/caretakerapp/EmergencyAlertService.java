@@ -121,7 +121,8 @@ public class EmergencyAlertService extends Service {
 
     private void showEmergencyNotification() {
         Intent fullScreenIntent = new Intent(this, EmergencyActivity.class);
-        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        fullScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
+
 
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(
                 this, 0, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

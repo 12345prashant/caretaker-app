@@ -88,6 +88,7 @@ public class AddPatientActivity extends AppCompatActivity {
                             // Patient already exists, just redirect to dashboard
                             Toast.makeText(AddPatientActivity.this, "Patient already exists, redirecting...", Toast.LENGTH_SHORT).show();
                             sharedPreferences.edit().putString("patient_email", patientEmail).apply();
+
                             startActivity(new Intent(AddPatientActivity.this, DashboardActivity.class));
                             finish();
                         } else {

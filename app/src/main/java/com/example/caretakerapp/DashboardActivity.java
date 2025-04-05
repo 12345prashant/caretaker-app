@@ -7,18 +7,24 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class DashboardActivity extends AppCompatActivity {
 
     private MaterialButton logoutButton;
     private CardView addPatientCard, addMedicineCard, sendMessageCard, viewPatientCard;
     private FirebaseAuth mAuth;
+    private FirebaseDatabase database;
+    private DatabaseReference videocallsRef;
+    private String pushedKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +33,8 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+        videocallsRef = database.getReference("videocalls");
 
         // Bind UI elements
         logoutButton = findViewById(R.id.buttonLogout);
@@ -64,14 +72,50 @@ public class DashboardActivity extends AppCompatActivity {
 
         viewPatientCard.setOnClickListener(v -> {
             v.startAnimation(bounce);
-            v.postDelayed(this::viewPatientActivity, 100);
+            v.postDelayed(() -> {
+                SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+                String patientEmail = sharedPreferences.getString("patient_email", "");
+
+                if (!patientEmail.isEmpty()) {
+                    // Push to Firebase and store the key
+                    pushedKey = videocallsRef.push().getKey();
+                    videocallsRef.child(pushedKey).setValue(patientEmail)
+                            .addOnSuccessListener(aVoid -> {
+                                // Pass the key to ViewPatientActivity
+                                Intent intent = new Intent(DashboardActivity.this, ViewPatientActivity.class);
+                                intent.putExtra("pushedKey", pushedKey);
+                                startActivity(intent);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(this, "Failed to start call", Toast.LENGTH_SHORT).show();
+                            });
+                } else {
+                    Toast.makeText(this, "No patient email found", Toast.LENGTH_SHORT).show();
+                }
+            }, 100);
         });
 
         logoutButton.setOnClickListener(v -> {
             v.startAnimation(bounce);
-            v.postDelayed(this::logoutUser, 100);
+            logoutUser();
+
         });
     }
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        // When returning from ViewPatientActivity, delete the entry
+//        if (pushedKey != null) {
+//            videocallsRef.child(pushedKey).removeValue()
+//                    .addOnSuccessListener(aVoid -> {
+//                        // Successfully deleted
+//                        pushedKey = null; // Reset key
+//                    })
+//                    .addOnFailureListener(e -> {
+//                        Toast.makeText(this, "Failed to delete: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    });
+//        }
+//    }
 
     // Function to handle user logout
     private void logoutUser() {
