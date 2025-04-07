@@ -1,187 +1,189 @@
 package com.example.caretakerapp;
 
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+
 import android.os.Bundle;
-import android.view.SurfaceView;
-import android.widget.FrameLayout;
-import android.widget.Toast;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Base64;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import io.agora.rtc2.ChannelMediaOptions;
-import io.agora.rtc2.Constants;
-import io.agora.rtc2.IRtcEngineEventHandler;
-import io.agora.rtc2.RtcEngine;
-import io.agora.rtc2.RtcEngineConfig;
-import io.agora.rtc2.video.VideoCanvas;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-
-
+import com.google.firebase.database.ValueEventListener;
 
 public class ViewPatientActivity extends AppCompatActivity {
-    private static final int PERMISSION_REQ_ID = 22;
-    private String myAppId = "e96507b0abbc41969519575c26fa5814";
-    private String channelName = "channel2";
-    private String token = "007eJxTYPC3y/m+U0iDTe2JnvSPJyeffQpcrrX5UJlA+wPmwzdu6MoqMKRampkamCcZJCYlJZsYWppZmhpampqbJhuZpSWaWhiaPLP4kN4QyMhg1PufhZEBAkF8DobkjMS8vNQcIwYGAOdPIWs=";
-    private RtcEngine mRtcEngine;
-    private DatabaseReference videocallsRef;
-    private String pushedKey;
-    private final IRtcEngineEventHandler mRtcEventHandler = new IRtcEngineEventHandler() {
-        // Callback when successfully joining the channel
-        @Override
-        public void onJoinChannelSuccess(String channel, int uid, int elapsed) {
-            super.onJoinChannelSuccess(channel, uid, elapsed);
-            showToast("Joined channel " + channel);
-        }
-        // Callback when a remote user or host joins the current channel
-        @Override
-        public void onUserJoined(int uid, int elapsed) {
-            super.onUserJoined(uid, elapsed);
-            runOnUiThread(() -> {
-                // When a remote user joins the channel, display the remote video stream for the specified uid
-                setupRemoteVideo(uid);
-                showToast("User joined: " + uid); // Show toast for user joining
-            });
-        }
-        // Callback when a remote user or host leaves the current channel
-        @Override
-        public void onUserOffline(int uid, int reason) {
-            super.onUserOffline(uid, reason);
-            runOnUiThread(() -> {
-                showToast("User offline: " + uid); // Show toast for user going offline
-            });
-        }
-    };
+    private static final String TAG = "CaretakerApp";
+//    private static final String PATIENT_ID = "patient_unique_id"; // Use same ID as patient app
+
+    private ImageView videoView;
+    private Button startViewingButton;
+    private Button stopViewingButton;
+    private TextView statusTextView;
+    private DatabaseReference firebaseRef;
+    private ValueEventListener frameListener;
+    private Handler handler;
+    private boolean isViewing = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_patient);
-        videocallsRef = FirebaseDatabase.getInstance().getReference("videocalls");
 
-        // Get the pushedKey from DashboardActivity (if passed via Intent)
-        pushedKey = getIntent().getStringExtra("pushedKey");
-        // Set up the "End Call" button
-        FloatingActionButton btnEndCall = findViewById(R.id.btnEndCall);
-        btnEndCall.setOnClickListener(v -> endVideoCall());
-        if (checkPermissions()) {
-            startVideoCalling();
+
+        videoView = findViewById(R.id.video_view);
+        startViewingButton = findViewById(R.id.start_viewing_button);
+        stopViewingButton = findViewById(R.id.stop_viewing_button);
+        statusTextView = findViewById(R.id.status_text);
+
+        // Initialize Firebase reference
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        String userEmail = sharedPreferences.getString("patient_email", null);
+
+
+        if (userEmail != null) {
+            // Format email for Firebase path (replace dots with commas)
+            String patientId = userEmail.replace(".", ",");
+            Log.d("Frame of ", userEmail);
+            // Initialize Firebase reference using the email as patient ID
+            firebaseRef = FirebaseDatabase.getInstance().getReference()
+                    .child("patient_frames").child(patientId);
         } else {
-            requestPermissions();
+            // Handle the case where email is not found
+            updateStatus("User email not found. Please log in again.");
+            // Consider redirecting to login screen
         }
+//        firebaseRef = FirebaseDatabase.getInstance().getReference()
+//                .child("patients").child(PATIENT_ID);
+
+        handler = new Handler(getMainLooper());
+
+        setupButtons();
+        checkStreamingStatus();
     }
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, getRequiredPermissions(), PERMISSION_REQ_ID);
+
+    private void setupButtons() {
+        startViewingButton.setOnClickListener(v -> startViewing());
+
+        stopViewingButton.setOnClickListener(v -> stopViewing());
+        stopViewingButton.setEnabled(false);
     }
-    private boolean checkPermissions() {
-        for (String permission : getRequiredPermissions()) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
+
+    private void checkStreamingStatus() {
+        firebaseRef.child("streaming_active").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Boolean isActive = snapshot.getValue(Boolean.class);
+                if (isActive != null && isActive) {
+                    updateStatus("Patient camera is active. Ready to view.");
+                    startViewingButton.setEnabled(true);
+                } else {
+                    updateStatus("Patient camera is offline.");
+                    startViewingButton.setEnabled(false);
+                    stopViewing();
+                }
             }
-        }
-        return true;
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                updateStatus("Error checking streaming status: " + error.getMessage());
+            }
+        });
     }
-    private String[] getRequiredPermissions() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-            return new String[]{
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.BLUETOOTH_CONNECT
-            };
-        } else {
-            return new String[]{
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.CAMERA
-            };
-        }
+
+    private void startViewing() {
+        if (isViewing) return;
+
+        isViewing = true;
+        startViewingButton.setEnabled(false);
+        stopViewingButton.setEnabled(true);
+        updateStatus("Connecting to patient camera...");
+
+        // Start listening for frames
+        frameListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                try {
+                    if (snapshot.exists()) {
+                        String base64Image = snapshot.child("image").getValue(String.class);
+                        if (base64Image != null) {
+                            byte[] imageBytes = Base64.decode(base64Image, Base64.DEFAULT);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+
+                            if (bitmap != null) {
+                                handler.post(() -> {
+                                    videoView.setImageBitmap(bitmap);
+                                    updateStatus("Viewing patient camera");
+                                });
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error processing frame: " + e.getMessage());
+                    updateStatus("Error displaying frame");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                updateStatus("Connection error: " + error.getMessage());
+                stopViewing();
+            }
+        };
+
+        firebaseRef.child("current_frame").addValueEventListener(frameListener);
     }
+
+    private void stopViewing() {
+//        if (!isViewing) return;
+//
+//        isViewing = false;
+        startViewingButton.setEnabled(true);
+        stopViewingButton.setEnabled(false);
+
+        if (frameListener != null) {
+            firebaseRef.child("current_frame").removeEventListener(frameListener);
+            frameListener = null;
+        }
+        Intent intent = new Intent(ViewPatientActivity.this, DashboardActivity.class);
+        startActivity(intent);
+        updateStatus("Stopped viewing");
+    }
+
+    private void updateStatus(String message) {
+        runOnUiThread(() -> {
+            statusTextView.setText(message);
+            Log.d(TAG, message);
+        });
+    }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQ_ID && checkPermissions()) {
-            startVideoCalling();
-        }
+    protected void onPause() {
+        super.onPause();
+        stopViewing();
     }
-    private void startVideoCalling() {
-        initializeAgoraVideoSDK();
-        enableVideo();
-        setupLocalVideo();
-        joinChannel();
-    }
-    private void initializeAgoraVideoSDK() {
-        try {
-            RtcEngineConfig config = new RtcEngineConfig();
-            config.mContext = getBaseContext();
-            config.mAppId = myAppId;
-            config.mEventHandler = mRtcEventHandler;
-            mRtcEngine = RtcEngine.create(config);
-        } catch (Exception e) {
-            throw new RuntimeException("Error initializing RTC engine: " + e.getMessage());
-        }
-    }
-    private void enableVideo() {
-        mRtcEngine.enableVideo();
-        mRtcEngine.startPreview();
-    }
-    private void setupLocalVideo() {
-        FrameLayout container = findViewById(R.id.local_video_view_container);
-        SurfaceView surfaceView = new SurfaceView(getBaseContext());
-        container.addView(surfaceView);
-        mRtcEngine.setupLocalVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, 0));
-    }
-    private void joinChannel() {
-        ChannelMediaOptions options = new ChannelMediaOptions();
-        options.clientRoleType = Constants.CLIENT_ROLE_BROADCASTER;
-        options.channelProfile = Constants.CHANNEL_PROFILE_COMMUNICATION;
-        options.publishCameraTrack = true;
-        options.publishMicrophoneTrack = true;
-        mRtcEngine.joinChannel(token, channelName, 0, options);
-    }
-    private void setupRemoteVideo(int uid) {
-        FrameLayout container = findViewById(R.id.remote_video_view_container);
-        SurfaceView surfaceView = new SurfaceView(getBaseContext());
-        surfaceView.setZOrderMediaOverlay(true);
-        container.addView(surfaceView);
-        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, uid));
-    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        cleanupAgoraEngine();
+        stopViewing();
     }
-    private void cleanupAgoraEngine() {
-        if (mRtcEngine != null) {
-            mRtcEngine.stopPreview();
-            mRtcEngine.leaveChannel();
-            mRtcEngine = null;
-        }
-    }
-    private void showToast(String message) {
-        runOnUiThread(() -> Toast.makeText(ViewPatientActivity.this, message, Toast.LENGTH_SHORT).show());
-    }
-    private void endVideoCall() {
-
-
-        // 2. Delete the patient email from Firebase
-        if (pushedKey != null) {
-            videocallsRef.child(pushedKey).removeValue()
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Call ended", Toast.LENGTH_SHORT).show();
-                        finish(); // Close the activity
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to end call: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-        } else {
-            finish(); // Close even if no key (fallback)
-        }
-    }
-
 }
