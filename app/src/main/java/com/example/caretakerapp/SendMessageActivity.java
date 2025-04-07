@@ -266,26 +266,42 @@ public class SendMessageActivity extends AppCompatActivity {
 
         // Create message data
         Map<String, Object> messageData = new HashMap<>();
-        String messageId = messagesDatabase.push().getKey();
+//        String messageId = messagesDatabase.push().getKey();
 
-        messageData.put("id", messageId);
-        messageData.put("sender", currentUserEmail);
-        messageData.put("text", messageText);
-        messageData.put("timestamp", System.currentTimeMillis());
-        messageData.put("status", "sent");
+//        messageData.put("id", messageId);
+//        messageData.put("sender", currentUserEmail);
+//        messageData.put("text", messageText);
+//        messageData.put("timestamp", System.currentTimeMillis());
+//        messageData.put("status", "sent");
+
+            messageData.put("sender", currentUserEmail);
+            messageData.put("receiver", "patient");
+            messageData.put("text", messageText);
+            messageData.put("timestamp", System.currentTimeMillis());
+            messageData.put("status", "sent");
 
         // Save to Firebase
-        messagesDatabase.child(messageId).setValue(messageData)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        messageEditText.setText("");
-                    } else {
-                        Toast.makeText(SendMessageActivity.this,
-                                "Failed to send message",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+//        messagesDatabase.child(messageId).setValue(messageData)
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        messageEditText.setText("");
+//                    } else {
+//                        Toast.makeText(SendMessageActivity.this,
+//                                "Failed to send message",
+//                                Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+
+        messagesDatabase.push().setValue(messageData).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                messageEditText.setText("");  // Clear input field
+            } else {
+                Toast.makeText(SendMessageActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
+
 
     private void loadMessages() {
         messagesDatabase.orderByChild("timestamp").addValueEventListener(new ValueEventListener() {
