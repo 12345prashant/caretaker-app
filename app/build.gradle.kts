@@ -47,6 +47,6 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("org.webrtc:google-webrtc:1.0.30039@aar")
 //    implementation("org.webrtc:google-webrtc:1.0.32006")
-    implementation("io.agora.rtc:full-sdk:4.2.3")
+//    implementation("io.agora.rtc:full-sdk:4.2.3")
 
 }
